@@ -6,6 +6,7 @@ import {
 } from 'react-icons/md';
 import cn from 'classnames';
 import './TodoListItem.scss';
+import { useCallback, useState } from 'react/cjs/react.development';
 
 const TodoListItem = ({todo, onRemove, onToggle}) => { // 파라미터로
     const {id, text, checked} = todo;
@@ -23,4 +24,4 @@ const TodoListItem = ({todo, onRemove, onToggle}) => { // 파라미터로
     );
 };
 
-export default TodoListItem;
+export default React.memo(TodoListItem);
