@@ -1,4 +1,4 @@
-import React, {useState, useRef, useCallback} from 'react';
+import React, {useReducer, useState, useRef, useCallback} from 'react';
 
 import TodoTemplate from './components/TodoTemplate';
 import TodoInsert from './components/TodoInsert';
@@ -17,10 +17,55 @@ function createBulkTodos() {
   return array;
 }
 
+function todoReducer(todos, action) {
+  switch(action.type) {
+    case 'INSERT' : // 새로 추가
+      return todos.concat(action.todo);
+
+    case 'REMOVE' :
+      return todos.filter(todo => todo.id !== action.id);
+
+    case 'TOGGLE' :
+      return todos.map(todo => todo.id === action.id ? {...todo, checked: !todo.checked} : todo);
+
+    default:
+      return todos;
+  }
+}
+
 const App = () => {
-   /*
-   App 컴포넌트에서 
-   */
+  const [todos, dispatch] = useReducer(todoReducer, undefined, createBulkTodos)
+
+  const nextId = useRef(2501); // 고유값으로 사용될 id. ref 사용해 변수 담기
+
+  const onInsert = useCallback(text => {
+    const todo = {
+      id: nextId.current,
+      text,
+      checked: false,
+    };
+    dispatch({type: 'INSERT', todo});
+    nextId.current += 1; // nextId 1 씩 더하기
+  }, []);
+
+  const onRemove = useCallback(id => {
+    dispatch({type: 'REMOVE', id});
+  }, [],);
+
+  // 수정 기능
+  const onToggle = useCallback(id => {
+    dispatch({type: 'TOGGLE', id});
+  }, []);
+
+  return ( 
+    <TodoTemplate>
+      <TodoInsert onInsert = {onInsert}/> {/*onInsert 함수를 TodoInsert 컴포넌트의 props로 설정*/}
+      <TodoList todos = {todos} onRemove = {onRemove} onToggle = {onToggle}/> {/* onRemove를 TodoList의 props로 설정 */}
+    </TodoTemplate>
+    );
+}
+
+const App_ = () => {
   const [todos, setTodos] = useState(createBulkTodos);/*useState([
     {
       id: 1,
